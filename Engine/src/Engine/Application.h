@@ -8,7 +8,6 @@ namespace Engine {
 	{		
 	public:
 		 void run();
-		 Application* createApplication();
 
 	};
 	Application* createApplication();

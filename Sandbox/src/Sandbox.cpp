@@ -1,4 +1,4 @@
-#include "../../../Engine/Engine/src/Engine.h"
+#include "Engine.h"
 
 class Sandbox : public Engine::Application {
 public:
@@ -10,6 +10,6 @@ public:
 	}
 };
 
-Engine::Application* Engine::createApplication() {
+Engine::Application* createApplication() {
 	return new Sandbox();
 }
