@@ -1,6 +1,5 @@
 #include "Application.h"
 #include "stdio.h"
-#include "Events/KeyEvent.h"
 namespace Engine {
 
 
@@ -9,6 +8,7 @@ namespace Engine {
 
 		while (true)
 		{
+			printf("test");
 		}
 	}
 }

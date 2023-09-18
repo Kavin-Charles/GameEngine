@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine.h"
+#include "Core.h"
 extern Engine::Application* Engine::createApplication();
 int main(int arc, char** argv) {
 

@@ -10,6 +10,6 @@ public:
 	}
 };
 
-Engine::Application* createApplication() {
+Engine::Application* Engine::createApplication() {
 	return new Sandbox();
 }
