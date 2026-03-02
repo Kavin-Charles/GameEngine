@@ -1,14 +1,90 @@
 #include "Application.h"
-#include "stdio.h"
+#include "Log.h"
+#include "Renderer/Renderer.h"
+
+#include <GLFW/glfw3.h>
+
 namespace Engine {
 
+	Application* Application::s_Instance = nullptr;
 
-	void Application::run()
+	Application::Application()
 	{
+		s_Instance = this;
 
-		while (true)
+		m_Window = std::unique_ptr<Window>(Window::Create());
+		m_Window->SetEventCallback([this](Event& e) { this->OnEvent(e); });
+
+		Renderer::Init();
+
+		// Create and push ImGui as an overlay (renders on top of everything)
+		m_ImGuiLayer = new ImGuiLayer();
+		PushOverlay(m_ImGuiLayer);
+	}
+
+	Application::~Application()
+	{
+	}
+
+	void Application::PushLayer(Layer* layer)
+	{
+		m_LayerStack.PushLayer(layer);
+	}
+
+	void Application::PushOverlay(Layer* overlay)
+	{
+		m_LayerStack.PushOverlay(overlay);
+	}
+
+	void Application::OnEvent(Event& e)
+	{
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<WindowCloseEvent>([this](WindowCloseEvent& e) { return OnWindowClose(e); });
+		dispatcher.Dispatch<WindowResizeEvent>([this](WindowResizeEvent& e) { return OnWindowResize(e); });
+
+		// Propagate events to layers (top to bottom)
+		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin(); )
 		{
-			printf("test");
+			(*--it)->OnEvent(e);
+			if (e.Handled)
+				break;
 		}
+	}
+
+	void Application::Run()
+	{
+		while (m_Running)
+		{
+			float time = (float)glfwGetTime();
+			float deltaTime = time - m_LastFrameTime;
+			m_LastFrameTime = time;
+
+			// Update all layers
+			for (Layer* layer : m_LayerStack)
+				layer->OnUpdate(deltaTime);
+
+			// Client update
+			OnUpdate(deltaTime);
+
+			// ImGui render pass
+			m_ImGuiLayer->Begin();
+			for (Layer* layer : m_LayerStack)
+				layer->OnImGuiRender();
+			m_ImGuiLayer->End();
+
+			m_Window->OnUpdate();
+		}
+	}
+
+	bool Application::OnWindowClose(WindowCloseEvent& e)
+	{
+		m_Running = false;
+		return true;
+	}
+
+	bool Application::OnWindowResize(WindowResizeEvent& e)
+	{
+		Renderer::SetViewport(0, 0, e.GetWidth(), e.GetHeight());
+		return false;
 	}
 }

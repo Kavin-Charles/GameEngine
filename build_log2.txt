@@ -1,0 +1,256 @@
+MSBuild version 17.13.19+0d9f5a35a for .NET Framework
+
+  imgui_impl_glfw.cpp
+  context.c
+  egl_context.c
+  init.c
+  imgui_impl_opengl3.cpp
+  input.c
+  imgui.cpp
+  monitor.c
+  null_init.c
+  null_joystick.c
+  imgui_demo.cpp
+  null_monitor.c
+  imgui_draw.cpp
+  null_window.c
+  imgui_tables.cpp
+  osmesa_context.c
+  platform.c
+  imgui_widgets.cpp
+  vulkan.c
+  Generating Code...
+  wgl_context.c
+  win32_init.c
+  win32_joystick.c
+  ImGui.vcxproj -> C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\bin\Debug-windows-x86_64\ImGui\ImGui.lib
+  win32_module.c
+  win32_monitor.c
+  win32_thread.c
+  win32_time.c
+  win32_window.c
+  Generating Code...
+  Compiling...
+  window.c
+  Generating Code...
+  GLFW.vcxproj -> C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\bin\Debug-windows-x86_64\GLFW\GLFW.lib
+  Application.cpp
+  ImGuiLayer.cpp
+  LayerStack.cpp
+  Log.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(524,23): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(524,23):
+      the template instantiation context (the oldest one first) is
+          C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\src\Engine\Events\Event.h(71,13):
+          see reference to function template instantiation 'std::basic_ostream<char,std::char_traits<char>> &std::operator <<<char,std::char_traits<char>,std::allocator<char>>(std::basic_ostream<char,std::char_traits<char>> &,const std::basic_string<char,std::char_traits<char>,std::allocator<char>> &)' being compiled
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\xstring(3410,12):
+          see reference to function template instantiation 'std::basic_ostream<char,std::char_traits<char>> &std::_Insert_string<char,std::char_traits<char>,unsigned __int64>(std::basic_ostream<char,std::char_traits<char>> &,const _Elem *const ,const _SizeT)' being compiled
+          with
+          [
+              _Elem=char,
+              _SizeT=unsigned __int64
+          ]
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(524,23): error C2065: 'iostate': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(524,31): error C2146: syntax error: missing ';' before identifier '_State' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(524,31): error C2065: '_State': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(524,49): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(524,49): error C2065: 'goodbit': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(527,9): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(527,51): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(530,36): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(533,29): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(533,5): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(533,36): error C2146: syntax error: missing ';' before identifier '_Ok' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(533,36): error C3861: '_Ok': identifier not found [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(535,10): error C2065: '_Ok': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(536,9): error C2065: '_State': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(536,28): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(536,28): error C2065: 'badbit': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(539,14): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(539,39): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(539,39): error C2065: 'adjustfield': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(539,64): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(539,64): error C2065: 'left': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(541,58): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(541,79): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(541,30): error C2660: 'std::_Narrow_char_traits<char,int>::eq_int_type': function does not take 1 arguments [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(495,38):
+      see declaration of 'std::_Narrow_char_traits<char,int>::eq_int_type'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(541,30):
+      while trying to match the argument list '(int)'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(542,21): error C2065: '_State': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(542,40): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(542,40): error C2065: 'badbit': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(548,13): error C2065: '_State': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(548,32): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(548,32): error C2065: 'goodbit': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(549,16): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(550,13): error C2065: '_State': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(550,32): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(550,32): error C2065: 'badbit': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(553,58): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(553,79): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(553,30): error C2660: 'std::_Narrow_char_traits<char,int>::eq_int_type': function does not take 1 arguments [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(495,38):
+      see declaration of 'std::_Narrow_char_traits<char,int>::eq_int_type'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(553,30):
+      while trying to match the argument list '(int)'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(554,21): error C2065: '_State': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(554,40): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(554,40): error C2065: 'badbit': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(560,9): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(561,9): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(561,9): error C2065: 'badbit': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(564,5): error C2027: use of undefined type 'std::basic_ostream<char,std::char_traits<char>>' [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\iosfwd(179,7):
+      see declaration of 'std::basic_ostream<char,std::char_traits<char>>'
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\__msvc_string_view.hpp(564,20): error C2065: '_State': undeclared identifier [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Engine/LayerStack.cpp')
+  
+  Camera.cpp
+  CameraController.cpp
+  Mesh.cpp
+  Renderer.cpp
+  OpenGLBuffer.cpp
+  OpenGLShader.cpp
+  OpenGLVertexArray.cpp
+  WindowsInput.cpp
+  WindowsWindow.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(130,9): warning C4005: 'APIENTRY': macro redefinition [C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\Engine.vcxproj]
+  (compiling source file 'src/Platform/Windows/WindowsWindow.cpp')
+      C:\Users\zbuser\OneDrive\Desktop\projects\GameEngine\Engine\vendor\glfw\include\GLFW\glfw3.h(123,11):
+      see previous definition of 'APIENTRY'
+  
+  Generating Code...

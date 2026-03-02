@@ -1,7 +1,8 @@
 #pragma once
-#include "Engine.h"
-#include "string"
-#include "functional"
+#include "Engine/Core.h"
+#include <string>
+#include <functional>
+#include <ostream>
 
 namespace Engine{
 
@@ -16,15 +17,13 @@ namespace Engine{
 
 	enum EventCategory
 	{
-		None = 0,
+		EventCategoryNone = 0,
 		EventCategoryApplication = BIT(0),
 		EventCategoryInput = BIT(1),
 		EventCategoryKeyboard = BIT(2),
 		EventCategoryMouse = BIT(3),
 		EventCategoryMouseButton = BIT(4)
 	};
-
-
 
 	class ENGINE_API Event
 	{
@@ -54,13 +53,12 @@ namespace Engine{
 		{
 		}
 
-		// F will be deduced by the compiler
 		template<typename T>
 		bool Dispatch(EventFn<T> func)
 		{
 			if (m_Event.GetEventType() == T::GetStaticType())
 			{
-				m_Event.Handled |= func(*(T*)&	m_Event);
+				m_Event.Handled |= func(*(T*)&m_Event);
 				return true;
 			}
 			return false;
@@ -74,10 +72,9 @@ namespace Engine{
 		return os << e.ToString();
 	}
 
-
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::type; }\
-								virtual EventType GetEventType() const override { return GetStaticType(); }\
-								virtual const char* GetName() const override { return #type; }
+							virtual EventType GetEventType() const override { return GetStaticType(); }\
+							virtual const char* GetName() const override { return #type; }
 
 #define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
 }
