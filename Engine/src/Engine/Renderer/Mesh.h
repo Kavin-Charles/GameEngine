@@ -25,6 +25,12 @@ namespace Engine {
 		// Factory: Creates a UV sphere
 		static std::shared_ptr<Mesh> CreateSphere(float radius = 1.0f, uint32_t sectorCount = 36, uint32_t stackCount = 18);
 
+		// Factory: Creates a cube with proper per-face normals
+		static std::shared_ptr<Mesh> CreateCube(float size = 1.0f);
+
+		// Factory: Creates a flat XZ plane with Y-up normal
+		static std::shared_ptr<Mesh> CreatePlane(float size = 1.0f);
+
 	private:
 		std::shared_ptr<VertexArray> m_VertexArray;
 	};
