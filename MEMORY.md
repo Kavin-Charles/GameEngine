@@ -1,242 +1,159 @@
-# GameEngine — Project Memory
-
-> This file serves as persistent memory for AI-assisted development on this project.
-> **⚠️ RULE: Update the "What's Been Done" section after EVERY task completed.**
-> Last updated: **2026-02-16**
-
----
+# GameEngine - Memory File for AI
 
 ## Project Overview
-
-A **C++ game engine** built as a DLL (`Engine.dll`) with a separate client application (`Sandbox.exe`). Follows a Cherno-style engine architecture with an event system, logging, windowing (GLFW), and an abstract OpenGL rendering pipeline. Uses a highly modular, OOP design with abstract interfaces and platform-specific implementations.
-
----
-
-## Build System
-
-| Tool | Details |
-|---|---|
-| **Build generator** | [Premake5](https://premake.github.io/) (`premake5.lua` at root) |
-| **IDE target** | Visual Studio 2022 (`vs2022`) |
-| **Language** | C++17 |
-| **Architecture** | x64 only |
-| **Configurations** | `Debug`, `Release`, `Dist` |
-| **Projects** | `GLFW` (static lib), `Engine` (shared lib/DLL), `Sandbox` (console app) |
-
-### How to Build
-
-```powershell
-# 1. Generate VS2022 solution (or run genproject.bat)
-vendor\bin\premake\premake5.exe vs2022
-
-# 2. Build with MSBuild
-& "${env:ProgramFiles}\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe" Engine.sln /p:Configuration=Debug /p:Platform=x64 /m
-
-# 3. Run
-.\bin\Debug-windows-x86_64\Sandbox\Sandbox.exe
-```
-
-### Build Output Paths
-
-```
-bin/<Config>-windows-x86_64/GLFW/      → GLFW.lib (static)
-bin/<Config>-windows-x86_64/Engine/    → Engine.dll
-bin/<Config>-windows-x86_64/Sandbox/   → Sandbox.exe + Engine.dll (copied via post-build)
-bin-int/<Config>-windows-x86_64/       → intermediate obj files
-```
-
-### Important Build Flags
-
-- `/utf-8` — required by spdlog for Unicode support on MSVC
-- `GLFW_INCLUDE_NONE` — prevents GLFW from pulling in its own GL headers (we use GLAD)
-- C4251 warning disabled — harmless warning for DLL-exporting classes with `std::shared_ptr` members
-- `ENGINE_BUILD_DLL` defined when compiling Engine (exports symbols)
-- `ENGINE_PLATFORM_WINDOWS` defined for both Engine and Sandbox
-
----
-
-## Project Structure
-
-```
-GameEngine/
-├── premake5.lua              # Build config (GLFW + ImGui + Engine + Sandbox)
-├── genproject.bat            # Shortcut: runs premake5.exe vs2022
-│
-├── Engine/
-│   ├── src/
-│   │   ├── Engine.h          # Master include header
-│   │   ├── Engine/
-│   │   │   ├── Core.h        # ENGINE_API macro, BIT() macro
-│   │   │   ├── Application.h/.cpp  # App base class (owns Window, LayerStack, ImGuiLayer)
-│   │   │   ├── Window.h      # Abstract Window interface + factory
-│   │   │   ├── Layer.h       # Abstract Layer (OnAttach/OnDetach/OnUpdate/OnImGuiRender)
-│   │   │   ├── LayerStack.h/.cpp   # Ordered layer management (layers + overlays)
-│   │   │   ├── Input.h       # Abstract Input polling (static IsKeyPressed, GetMousePos)
-│   │   │   ├── Log.h/.cpp    # spdlog wrapper
-│   │   │   ├── EntryPoint.h  # main()
-│   │   │   ├── Events/       # Event system (wired to GLFW callbacks)
-│   │   │   ├── ImGui/
-│   │   │   │   └── ImGuiLayer.h/.cpp  # ImGui lifecycle as overlay Layer
-│   │   │   └── Renderer/
-│   │   │       ├── Renderer.h/.cpp        # Static Renderer
-│   │   │       ├── Shader.h / Buffer.h / VertexArray.h  # Abstract interfaces
-│   │   │       ├── Camera.h/.cpp          # PerspectiveCamera + SetPositionAndTarget
-│   │   │       ├── CameraController.h/.cpp # FPS camera (WASD + right-click mouse look)
-│   │   │       └── Mesh.h/.cpp            # Mesh + UV sphere factory
-│   │   └── Platform/
-│   │       ├── Windows/
-│   │       │   ├── WindowsWindow.h/.cpp    # GLFW window
-│   │       │   └── WindowsInput.h/.cpp     # GLFW input polling
-│   │       └── OpenGL/
-│   │           ├── OpenGLBuffer.h/.cpp
-│   │           ├── OpenGLShader.h/.cpp
-│   │           └── OpenGLVertexArray.h/.cpp
-│   └── vendor/
-│       ├── spdlog/ glfw/ glad/ glm/ imgui/
-│
-├── Sandbox/
-│   └── src/
-│       └── Sandbox.cpp       # SandboxLayer with ImGui sphere editor + CameraController
-│
-└── vendor/bin/premake/premake5.exe
-```
-
----
+A modular C++ game engine built as a DLL (`Engine.dll`) with a `Sandbox.exe` client application. Follows a Cherno-style architecture with instance-based systems, ECS-driven scene model, and dual-view rendering.
 
 ## Architecture
+- **Engine** → Shared Library (`Engine.dll`) — all editor features, rendering, ECS, picking, highlighting
+- **Sandbox** → Console Application (`Sandbox.exe`) — **user game code and assets ONLY**
+- **Rule**: Engine features (editor UI, gizmos, selection, framebuffers, menus) must NEVER live in Sandbox. Sandbox should only contain scene setup, user shaders, and game logic.
+- **Build System** → Premake5 generating VS2022 solutions
+- **C++ Standard** → C++17, x64 only
 
-### DLL Export Model
+## Directory Structure
+```
+Engine/
+├── src/
+│   ├── Engine.h                    # Master include header
+│   ├── Engine/
+│   │   ├── Core.h                  # DLL macros, Ref/Scope aliases, Asserts
+│   │   ├── Application.h/.cpp      # Owns Window, Renderer, InputSystem, EngineContext
+│   │   ├── EngineContext.h          # Aggregate: Renderer*, InputSystem*, Window*
+│   │   ├── EntryPoint.h            # Main() definition
+│   │   ├── Layer.h                 # Abstract Layer (OnUpdate takes Timestep)
+│   │   ├── LayerStack.h/.cpp       # Layer management
+│   │   ├── Log.h/.cpp              # spdlog-based logging
+│   │   ├── Input.h                 # Static input polling (legacy)
+│   │   ├── InputSystem.h/.cpp      # Instance-based input (queries Window)
+│   │   ├── Window.h                # Abstract window interface
+│   │   ├── Timestep.h              # Delta time wrapper
+│   │   ├── UUID.h                  # 64-bit UUID generator
+│   │   ├── Events/                 # Event system
+│   │   ├── ImGui/
+│   │   │   └── ImGuiLayer.h/.cpp   # ImGui integration layer
+│   │   ├── Renderer/
+│   │   │   ├── RendererAPI.h/.cpp  # Abstract GPU API interface
+│   │   │   ├── RenderCommand.h/.cpp# Static facade for low-level GPU commands
+│   │   │   ├── Renderer.h/.cpp     # Instance renderer: RenderScene + RenderSceneWithCamera
+│   │   │   ├── Buffer.h            # VertexBuffer/IndexBuffer
+│   │   │   ├── VertexArray.h       # VertexArray
+│   │   │   ├── Shader.h            # Abstract shader (Create + CreateFromFile)
+│   │   │   ├── ShaderLibrary.h/.cpp# Named shader cache
+│   │   │   ├── Texture.h           # Texture base + Texture2D (Create from file or w/h)
+│   │   │   ├── Material.h          # PBR-ready material struct
+│   │   │   ├── Camera.h/.cpp       # Projection + FOV, view from Transform
+│   │   │   ├── CameraController.h/.cpp # WASD + right-click mouse look
+│   │   │   ├── Mesh.h/.cpp         # Mesh with sphere generation (pos+normal+uv)
+│   │   │   └── Framebuffer.h/.cpp  # Abstract framebuffer
+│   │   ├── Scene/
+│   │   │   ├── Transform.h         # Position/Rotation/Scale + GetMatrix()
+│   │   │   ├── Entity.h/.inl       # Lightweight ECS handle (uint32_t + Scene*)
+│   │   │   ├── Registry.h          # Type-erased ComponentPool storage
+│   │   │   ├── Components.h        # TagComponent, TransformComponent, MeshRendererComponent
+│   │   │   ├── CameraComponent.h   # Camera + Primary + IsGameCamera flags
+│   │   │   ├── Scene.h/.cpp        # ECS Registry owner, FindGameCameraID
+│   │   │   └── SceneHierarchyPanel.h/.cpp # ECS-based hierarchy and properties UI
+│   │   └── Asset/
+│   │       └── AssetManager.h/.cpp
+│   └── Platform/
+│       ├── OpenGL/
+│       └── Windows/
+Sandbox/
+├── src/
+│   └── Sandbox.cpp               # Dual-view: Scene View + Game View
+└── assets/
+    ├── shaders/
+    │   ├── phong.vert             # Vertex shader (pos+normal+uv, MVP)
+    │   └── phong.frag             # Fragment shader (Phong + albedo texture)
+    ├── textures/
+    │   └── checkerboard.png
+    ├── models/                    # Future mesh files
+    └── scenes/                    # Future scene files
+```
 
-- `Core.h` defines `ENGINE_API` macro:
-  - When `ENGINE_BUILD_DLL` is defined (Engine project): `__declspec(dllexport)`
-  - Otherwise (Sandbox/client): `__declspec(dllimport)`
-- All public engine classes use `ENGINE_API` for symbol export
+## Entity-Component System (ECS)
+Custom lightweight ECS implementation (no external library):
+- **Registry** (`Registry.h`): Type-erased `ComponentPool` storage, manages entity creation/destruction and component add/get/has/remove
+- **Entity** (`Entity.h/.inl`): Lightweight handle (`uint32_t` ID + `Scene*`), forwards AddComponent/GetComponent/HasComponent/RemoveComponent to Registry
+- **Components** (`Components.h`):
+  - `TagComponent` — Name string
+  - `TransformComponent` — Wraps `Transform` (Position/Rotation/Scale + GetMatrix())
+  - `MeshRendererComponent` — `shared_ptr<Mesh>` + `Material` (Color)
+- **CameraComponent** (`CameraComponent.h`): Camera + `Primary` + `IsGameCamera` flags
+- **Scene** (`Scene.h/.cpp`): Owns the Registry, provides `CreateEntity()`, `FindGameCameraID()`, iterates entities for rendering
 
-### Entry Point (`EntryPoint.h`)
+## Asset System
+- **Asset source**: `Sandbox/assets/` — the canonical location for all assets
+- **Postbuild copy**: Premake copies `Sandbox/assets/` → `bin/.../Sandbox/assets/` on every build
+- **Asset paths** use simple relative format: `"assets/textures/..."`, `"assets/shaders/..."`
+- **Shader loading**: `Shader::CreateFromFile(name, vertPath, fragPath)` reads GLSL from disk via `std::ifstream`
+- **Texture loading**: `Texture2D::Create(path)` loads via stb_image; `Texture2D::Create(w, h)` for runtime data
+- **stb_image** vendored at `Engine/vendor/stb/stb_image.h` with implementation in `stb_image_impl.cpp`
 
-The `main()` function lives **inside the Engine** (in `EntryPoint.h`), not in Sandbox. Flow:
+## Key Design Decisions
 
-1. `Engine::Log::Init()` — sets up spdlog loggers
-2. Logs `"Engine Initialized!"`
-3. Calls `Engine::createApplication()` — implemented by client (Sandbox)
-4. Calls `app->Run()` — the main game loop
-5. Deletes the app
+### Dual-View Rendering
+- **Scene View** → Editor camera (NOT an Entity, owned by SandboxLayer)
+- **Game View** → Game Camera (Entity with `IsGameCamera=true`, hidden from hierarchy)
+- Two separate framebuffers, two render passes
+- Each view resizes independently
 
-### Application Class
+### Camera System
+- `Camera` class: projection data only, view matrix computed from Transform
+- `CameraComponent`: wraps Camera + `Primary` + `IsGameCamera` flags
+- `CameraController`: always-on WASD + mouse look, modifies Transform directly
+- Editor camera: owned by client layer, not in scene
+- Game camera: Entity in scene, `IsGameCamera=true`
 
-- `Engine::Application` — base class that owns the `Window`
-- Creates window in constructor, initializes `Renderer`
-- `Run()` — game loop with delta time: calls `OnUpdate(deltaTime)` then `window->OnUpdate()`
-- Handles `WindowCloseEvent` → sets `m_Running = false`
-- Handles `WindowResizeEvent` → updates viewport
-- Client extends it and overrides `OnUpdate(float dt)`
-- Static `Application::Get()` accessor for singleton
+### Rendering Flow
+```
+OnUpdate():
+  1. CameraController.OnUpdate(dt, input, editorTransform)
+  2. SceneFramebuffer.Bind()
+     → Renderer.RenderSceneWithCamera(scene, shader, editorCamera, editorTransform)
+     SceneFramebuffer.Unbind()
+  3. GameFramebuffer.Bind()
+     → Renderer.RenderSceneWithCamera(scene, shader, gameCam, gameCamTransform)
+     GameFramebuffer.Unbind()
+OnImGuiRender():
+  Scene View panel → SceneFramebuffer texture
+  Game View panel → GameFramebuffer texture
+```
 
-### Abstract Window System
+### Instance-Based Systems
+- `Renderer` is instance-based (no static state)
+- `InputSystem` queries GLFW via Window reference
+- `EngineContext` aggregates system pointers
+- `RenderCommand` stays static (low-level GPU facade)
 
-- `Window` — abstract interface with `OnUpdate()`, `GetWidth/Height()`, `SetEventCallback()`, `SetVSync()`
-- `Window::Create(props)` — factory method, returns platform-specific implementation
-- `WindowsWindow` — GLFW implementation with full event callback wiring (resize, close, key, mouse)
-- Initializes GLAD for OpenGL function loading
-
-### Abstract Renderer API
-
-All renderer interfaces are **API-agnostic** — OpenGL implementations live in `Platform/OpenGL/`:
-
-| Interface | Factory | OpenGL Implementation |
-|---|---|---|
-| `Shader` | `Shader::Create(vert, frag)` | `OpenGLShader` — compiles/links GLSL, uniforms |
-| `VertexBuffer` | `VertexBuffer::Create(data, size)` | `OpenGLVertexBuffer` — GL buffer objects |
-| `IndexBuffer` | `IndexBuffer::Create(data, count)` | `OpenGLIndexBuffer` — GL element buffers |
-| `VertexArray` | `VertexArray::Create()` | `OpenGLVertexArray` — GL VAO with auto attribute config |
-
-- `BufferLayout` — describes vertex attributes (`ShaderDataType`, name, offset, stride)
-- `Renderer` — static class: `Init()`, `BeginScene(camera)`, `Submit(shader, vao, transform)`, `EndScene()`
-- `PerspectiveCamera` — position, rotation, FOV → computes view-projection matrix (GLM)
-- `Mesh` — holds a `VertexArray`, factory `CreateSphere(radius, sectors, stacks)`
-
-### Logging (`Log.h` / `Log.cpp`)
-
-- Wraps **spdlog** with two loggers:
-  - `s_CoreLogger` ("Engine") — internal engine logs
-  - `s_ClientLogger` ("Client") — client application logs
-- Macros: `ENGINE_LOG_ERROR/WARN/INFO/TRACE`, `CLIENT_LOG_ERROR/WARN/INFO/TRACE`
-
-### Event System (`Events/`)
-
-Wired up to GLFW via `WindowsWindow` callbacks:
-
-| Category | Events |
-|---|---|
-| Application | `WindowClose`, `WindowResize`, `AppTick`, `AppUpdate`, `AppRender` |
-| Keyboard | `KeyPressed` (with repeat count), `KeyReleased` |
-| Mouse | `MouseMoved`, `MouseScrolled`, `MouseButtonPressed`, `MouseButtonReleased` |
-
----
+### Build Notes
+- ImGuizmo linked with `/WHOLEARCHIVE:ImGuizmo`
+- `GLM_ENABLE_EXPERIMENTAL` for glm/gtx headers
+- OneDrive may cause sharing violations — kill Sandbox.exe before rebuilding
 
 ## Dependencies
-
 | Dependency | Location | Purpose |
-|---|---|---|
-| **spdlog** | `Engine/vendor/spdlog` (git submodule) | Fast C++ logging |
-| **GLFW** | `Engine/vendor/glfw` (git clone) | Windowing and input |
-| **GLAD** | `Engine/vendor/glad` (generated) | OpenGL 4.6 Core function loader |
-| **GLM** | `Engine/vendor/glm` (git clone) | Math library (vectors, matrices) |
-| **ImGui** | `Engine/vendor/imgui` (git clone) | Debug UI overlay (GLFW + OpenGL3 backends) |
-| **Premake5** | `vendor/bin/premake/premake5.exe` | Build configuration generator |
+|-----------|----------|---------|
+| spdlog | Engine/vendor/spdlog | Logging |
+| GLFW | Engine/vendor/glfw | Window/Input |
+| GLAD | Engine/vendor/glad | OpenGL loading |
+| GLM | Engine/vendor/glm | Math |
+| ImGui | Engine/vendor/imgui | Debug UI |
+| ImGuizmo | Engine/vendor/ImGuizmo | Transform gizmos |
+| stb_image | Engine/vendor/stb | Image loading (textures) |
 
----
+## Future TODOs
 
-## Known Issues & Gotchas
+### Build Pipeline (in order)
+1. Scene serialization (JSON/YAML) — save/load entities + components
+2. Standalone Game Runtime project — separate exe without editor UI
+3. Asset packaging — bundle assets into build output
+4. Wire Build button — trigger MSBuild + copy Engine.dll + assets
 
-1. **spdlog submodule** — `git submodule update --init` can fail. Fallback: clone directly with `git clone https://github.com/gabime/spdlog.git Engine/vendor/spdlog`
-2. **Post-build copy** — uses `{MKDIR}` now in premake to auto-create output dir, but can occasionally fail on first build
-3. **GLAD generation** — generated via `python -m glad --api "gl:core=4.6" --out-path Engine/vendor/glad c` (requires `pip install glad2`)
-
----
-
-## What's Been Done (Session Log)
-
-### 2026-02-16 — Initial Setup & Build
-- Cloned `spdlog` submodule (git submodule init failed, cloned directly)
-- Downloaded and extracted `premake5.exe` (v5.0.0-beta2) to `vendor/bin/premake/`
-- Fixed `#include"memory"` → `#include <memory>` in `Log.h` and `Log.cpp`
-- Added `/utf-8` build option to `premake5.lua` for both Engine and Sandbox (required by spdlog)
-- Disabled C4251 warning in Engine project (DLL export of `shared_ptr` members)
-- Generated VS2022 solution and built successfully
-- Ran `Sandbox.exe` — output confirmed working (spdlog init + infinite loop printing "test")
-- Created `MEMORY.md` project memory file
-
-### 2026-02-16 — Window + OpenGL Sphere Rendering
-- **Dependencies**: Cloned GLFW and GLM into `Engine/vendor/`. Generated GLAD (OpenGL 4.6 Core) via `glad2`
-- **Build system**: Rewrote `premake5.lua` — added GLFW static lib project, GLAD source compilation, OpenGL linking, GLM includes, `GLFW_INCLUDE_NONE`, fixed post-build with `{MKDIR}`
-- **Abstract Window**: Created `Window` interface (`Window.h`) with factory method. Implemented `WindowsWindow` using GLFW with full event callbacks
-- **Abstract Renderer**: Created abstract interfaces for `Shader`, `VertexBuffer`, `IndexBuffer`, `VertexArray` with static `Create()` factories. Created `BufferLayout` descriptor system
-- **OpenGL implementations**: `OpenGLShader` (compile/link/uniforms), `OpenGLBuffer` (VBO/IBO), `OpenGLVertexArray` (VAO with auto attribute config from layout)
-- **Renderer**: Static `Renderer` class with `Init()`, `BeginScene(camera)`, `Submit(shader, vao, transform)`, `EndScene()`
-- **Camera**: `PerspectiveCamera` with position, rotation, FOV, view-projection matrix via GLM
-- **Mesh**: `Mesh` class with UV sphere factory (`CreateSphere(radius, sectors, stacks)`)
-- **Application**: Rewritten — owns `Window`, has proper game loop with delta time, handles `WindowCloseEvent` and `WindowResizeEvent`, virtual `OnUpdate(float dt)`
-- **Event system**: Fixed all headers (angle brackets, `const override`, removed stray declarations, renamed enum collision `None` → `EventCategoryNone`)
-- **Sandbox**: Renders a Phong-lit, rotating blue sphere with vertex/fragment shaders
-- **Verified**: Build succeeds (0 errors), window opens at 1280×720, OpenGL 4.6.0 confirmed on NVIDIA, sphere renders and rotates
-
-### 2026-02-16 — ImGui Integration + Movable Camera
-- **Dependencies**: Cloned ImGui into `Engine/vendor/imgui`. Added as static lib project in `premake5.lua` with GLFW+OpenGL3 backends
-- **Layer system**: Created `Layer` abstract class, `LayerStack` (push/pop layers + overlays), wired into `Application` game loop
-- **ImGuiLayer**: Initializes ImGui with GLFW+OpenGL3 backends, manages new frame / render lifecycle, pushed as overlay
-- **Input system**: Abstract `Input` class with static polling (`IsKeyPressed`, `GetMousePosition`). `WindowsInput` GLFW implementation
-- **CameraController**: FPS-style — WASD movement, right-click + mouse drag for look, Space/Shift for up/down. Configurable speed/sensitivity
-- **Sandbox reimplemented**: `SandboxLayer` with full ImGui panel for sphere properties (position, scale, rotation, color, ambient, specular, shininess, light position/color, background color, camera speed/sensitivity)
-- **Bug fixes**: Added `<ostream>` include to `Event.h` (fixed 46 MSVC errors), linked ImGui to Sandbox project (fixed 10 LNK2019 errors)
-- **Verified**: Full rebuild succeeds (0 errors), app runs with ImGui panel and camera controls
-
----
-
-## Next Steps (Suggested Roadmap)
-
-1. **Precompiled headers (PCH)** — Speed up compilation
-2. **Textures** — Abstract Texture2D with OpenGL implementation
-3. **Scene graph** — Entity/component system
-4. **Multiple objects** — Scene with multiple meshes and transforms
-5. **2D renderer** — Sprite batching, quad renderer
+### Engine Features
+- Parent-child hierarchy for Entities
+- More mesh primitives (cube, plane, etc.)
+- Lighting system (directional, point, spot lights)
+- Shadow mapping
+- Physics system integration
+- Audio system

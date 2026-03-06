@@ -1,15 +1,48 @@
 #include "OpenGLShader.h"
 #include "Engine/Log.h"
 #include <glm/gtc/type_ptr.hpp>
+#include <fstream>
+#include <sstream>
+#include <filesystem>
 
 namespace Engine {
 
-	Shader* Shader::Create(const std::string& vertexSrc, const std::string& fragmentSrc)
+	std::shared_ptr<Shader> Shader::Create(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
 	{
-		return new OpenGLShader(vertexSrc, fragmentSrc);
+		return std::make_shared<OpenGLShader>(name, vertexSrc, fragmentSrc);
 	}
 
-	OpenGLShader::OpenGLShader(const std::string& vertexSrc, const std::string& fragmentSrc)
+	std::shared_ptr<Shader> Shader::CreateFromFile(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath)
+	{
+		auto readFile = [](const std::string& path) -> std::string {
+			std::string absPath = std::filesystem::absolute(path).string();
+			ENGINE_LOG_INFO("Loading shader file: {0}", absPath);
+			std::ifstream file(path);
+			if (!file.is_open())
+			{
+				ENGINE_LOG_ERROR("Failed to open shader file: {0} (absolute: {1})", path, absPath);
+				ENGINE_LOG_ERROR("Current working directory: {0}", std::filesystem::current_path().string());
+				return "";
+			}
+			std::stringstream ss;
+			ss << file.rdbuf();
+			return ss.str();
+		};
+
+		std::string vertexSrc = readFile(vertexPath);
+		std::string fragmentSrc = readFile(fragmentPath);
+
+		if (vertexSrc.empty() || fragmentSrc.empty())
+		{
+			ENGINE_LOG_ERROR("Shader creation failed for '{0}': could not read source files", name);
+			return nullptr;
+		}
+
+		return std::make_shared<OpenGLShader>(name, vertexSrc, fragmentSrc);
+	}
+
+	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
+		: m_Name(name)
 	{
 		// Vertex shader
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -49,6 +82,12 @@ namespace Engine {
 	void OpenGLShader::Unbind() const
 	{
 		glUseProgram(0);
+	}
+
+	void OpenGLShader::SetBool(const std::string& name, bool value)
+	{
+		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		glUniform1i(location, value ? 1 : 0);
 	}
 
 	void OpenGLShader::SetInt(const std::string& name, int value)

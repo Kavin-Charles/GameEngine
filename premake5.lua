@@ -199,12 +199,14 @@ project "Engine"
 	{
 		"%{prj.name}/src/**.h",
 		"%{prj.name}/src/**.cpp",
-		"Engine/vendor/glad/src/gl.c"
+		"Engine/vendor/glad/src/gl.c",
+		"Engine/vendor/stb/stb_image_impl.cpp"
 	}
 
 	includedirs
 	{
 		"%{prj.name}/vendor/spdlog/include",
+		"%{prj.name}/vendor/stb",
 		"%{prj.name}/src",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
@@ -221,6 +223,9 @@ project "Engine"
 		"ImGuizmo",
 		"opengl32.lib"
 	}
+
+	-- Force-include all ImGuizmo symbols so they're exported from Engine.dll
+	linkoptions { "/WHOLEARCHIVE:ImGuizmo" }
 
 	defines
 	{
@@ -267,6 +272,9 @@ project "Sandbox"
 	targetdir ("bin/" ..outputdir.. "/%{prj.name}")
 	objdir ("bin-int/" ..outputdir.. "/%{prj.name}")
 
+	-- Set working directory to Sandbox/ so asset paths resolve correctly
+	debugdir "%{wks.location}/Sandbox"
+
 	files
 	{
 		"%{prj.name}/src/**.h",
@@ -299,6 +307,12 @@ project "Sandbox"
 			"ENGINE_PLATFORM_WINDOWS",
 			"IMGUI_API=__declspec(dllimport)",
 			"GLM_ENABLE_EXPERIMENTAL"
+		}
+
+		-- Copy assets to output directory
+		postbuildcommands
+		{
+			'{COPYDIR} "%{wks.location}/Sandbox/assets" "%{cfg.targetdir}/assets"'
 		}
 
 	filter "configurations:Debug"
