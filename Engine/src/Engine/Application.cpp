@@ -1,8 +1,8 @@
 #include "Application.h"
 #include "Log.h"
-#include "Renderer/Renderer.h"
 
 #include <GLFW/glfw3.h>
+#include <filesystem>
 
 namespace Engine {
 
@@ -11,19 +11,28 @@ namespace Engine {
 	Application::Application()
 	{
 		s_Instance = this;
+		ENGINE_LOG_INFO("Working directory: {0}", std::filesystem::current_path().string());
 
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback([this](Event& e) { this->OnEvent(e); });
 
-		Renderer::Init();
+		// Initialize subsystems
+		m_Renderer.Init();
+		m_InputSystem = std::make_unique<InputSystem>(*m_Window);
 
-		// Create and push ImGui as an overlay (renders on top of everything)
+		// Build context
+		m_Context.RendererInstance = &m_Renderer;
+		m_Context.Input = m_InputSystem.get();
+		m_Context.WindowInstance = m_Window.get();
+
+		// Create and push ImGui as an overlay
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
 	}
 
 	Application::~Application()
 	{
+		m_Renderer.Shutdown();
 	}
 
 	void Application::PushLayer(Layer* layer)
@@ -42,7 +51,6 @@ namespace Engine {
 		dispatcher.Dispatch<WindowCloseEvent>([this](WindowCloseEvent& e) { return OnWindowClose(e); });
 		dispatcher.Dispatch<WindowResizeEvent>([this](WindowResizeEvent& e) { return OnWindowResize(e); });
 
-		// Propagate events to layers (top to bottom)
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin(); )
 		{
 			(*--it)->OnEvent(e);
@@ -56,15 +64,14 @@ namespace Engine {
 		while (m_Running)
 		{
 			float time = (float)glfwGetTime();
-			float deltaTime = time - m_LastFrameTime;
+			Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 
-			// Update all layers
-			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate(deltaTime);
-
-			// Client update
-			OnUpdate(deltaTime);
+			if (!m_Minimized)
+			{
+				for (Layer* layer : m_LayerStack)
+					layer->OnUpdate(timestep);
+			}
 
 			// ImGui render pass
 			m_ImGuiLayer->Begin();
@@ -84,7 +91,14 @@ namespace Engine {
 
 	bool Application::OnWindowResize(WindowResizeEvent& e)
 	{
-		Renderer::SetViewport(0, 0, e.GetWidth(), e.GetHeight());
+		if (e.GetWidth() == 0 || e.GetHeight() == 0)
+		{
+			m_Minimized = true;
+			return false;
+		}
+
+		m_Minimized = false;
+		m_Renderer.SetViewport(0, 0, e.GetWidth(), e.GetHeight());
 		return false;
 	}
 }
