@@ -85,6 +85,13 @@ namespace Engine {
 		// --- Pass 1: Scene View (editor camera) ---
 		m_SceneFramebuffer->Bind();
 		m_Renderer->BeginFrame({ 0.1f, 0.1f, 0.1f, 1.0f });
+
+		// Clear entity ID attachment to -1
+		m_SceneFramebuffer->ClearAttachment(1, -1);
+		
+		uint32_t selectedID = m_SceneHierarchyPanel.GetSelectedEntity() ? (uint32_t)m_SceneHierarchyPanel.GetSelectedEntity() : 0;
+		m_Renderer->SetSelectedEntity(selectedID);
+
 		m_Renderer->RenderSceneWithCamera(*m_Scene, *m_Shader, m_EditorCamera, m_EditorTransform);
 		m_Renderer->EndFrame();
 		m_SceneFramebuffer->Unbind();
@@ -180,11 +187,48 @@ namespace Engine {
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("Scene View", nullptr, window_flags);
 		{
+			auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+			auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+			auto viewportOffset = ImGui::GetWindowPos();
+
+			glm::vec2 viewportBounds[2];
+			viewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
+			viewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
+
 			ImVec2 panelSize = ImGui::GetContentRegionAvail();
 			m_SceneViewSize = { panelSize.x, panelSize.y };
 
 			uint32_t texID = m_SceneFramebuffer->GetColorAttachmentRendererID();
 			ImGui::Image((void*)(uint64_t)texID, ImVec2{ m_SceneViewSize.x, m_SceneViewSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+			// Editor Mouse Picking logic
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered() && !ImGuizmo::IsOver())
+			{
+				auto mousePos = ImGui::GetMousePos();
+				mousePos.x -= viewportBounds[0].x;
+				mousePos.y -= viewportBounds[0].y;
+				glm::vec2 viewportSize = viewportBounds[1] - viewportBounds[0];
+
+				// Flip Y because OpenGL's origin is bottom-left but ImGui's is top-left
+				mousePos.y = viewportSize.y - mousePos.y;
+
+				if (mousePos.x >= 0 && mousePos.y >= 0 && mousePos.x < (int)viewportSize.x && mousePos.y < (int)viewportSize.y)
+				{
+					m_SceneFramebuffer->Bind();
+					int pixelData = m_SceneFramebuffer->ReadPixel(1, (int)mousePos.x, (int)mousePos.y);
+					m_SceneFramebuffer->Unbind();
+
+					if (pixelData != -1)
+					{
+						Entity e((uint32_t)pixelData, m_Scene.get());
+						m_SceneHierarchyPanel.SetSelectedEntity(e);
+					}
+					else
+					{
+						m_SceneHierarchyPanel.SetSelectedEntity({});
+					}
+				}
+			}
 
 			// Gizmos in Scene View
 			Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();

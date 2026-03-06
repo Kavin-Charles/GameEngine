@@ -53,6 +53,8 @@ namespace Engine {
 			auto& transform = reg.GetComponent<TransformComponent>(id);
 
 			shader.Bind();
+			shader.SetInt("u_EntityID", (int)id);
+			shader.SetBool("u_Selected", id == m_SelectedEntityID);
 			shader.SetFloat3("u_ObjectColor", glm::vec3(meshRenderer.MaterialData.Color));
 
 			if (meshRenderer.MaterialData.AlbedoTexture)

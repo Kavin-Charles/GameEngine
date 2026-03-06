@@ -22,6 +22,7 @@ namespace Engine {
 	{
 		glDeleteFramebuffers(1, &m_RendererID);
 		glDeleteTextures(1, &m_ColorAttachment);
+		glDeleteTextures(1, &m_EntityIDAttachment);
 		glDeleteTextures(1, &m_DepthAttachment);
 	}
 
@@ -31,19 +32,32 @@ namespace Engine {
 		{
 			glDeleteFramebuffers(1, &m_RendererID);
 			glDeleteTextures(1, &m_ColorAttachment);
+			glDeleteTextures(1, &m_EntityIDAttachment);
 			glDeleteTextures(1, &m_DepthAttachment);
 		}
 
 		glCreateFramebuffers(1, &m_RendererID);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 
+		// Color Attachment 0 (RGBA8)
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_ColorAttachment);
 		glBindTexture(GL_TEXTURE_2D, m_ColorAttachment);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Specification.Width, m_Specification.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorAttachment, 0);
+
+		// Color Attachment 1 (Entity ID - R32I)
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_EntityIDAttachment);
+		glBindTexture(GL_TEXTURE_2D, m_EntityIDAttachment);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R32I, m_Specification.Width, m_Specification.Height, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, nullptr);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_EntityIDAttachment, 0);
+
+		// Tell OpenGL we are drawing to multiple attachments
+		GLenum buffers[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+		glDrawBuffers(2, buffers);
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_DepthAttachment);
 		glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
@@ -77,5 +91,31 @@ namespace Engine {
 		m_Specification.Height = height;
 		
 		Invalidate();
+	}
+
+	int OpenGLFramebuffer::ReadPixel(uint32_t attachmentIndex, int x, int y)
+	{
+		// Currently we only support attachmentIndex 1 (Entity ID) for integer reading
+		if (attachmentIndex != 1) return -1;
+
+		glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
+		int pixelData = -1;
+		glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData);
+		return pixelData;
+	}
+
+	void OpenGLFramebuffer::ClearAttachment(uint32_t attachmentIndex, int value)
+	{
+		if (attachmentIndex == 1)
+		{
+			glClearTexImage(m_EntityIDAttachment, 0, GL_RED_INTEGER, GL_INT, &value);
+		}
+	}
+
+	uint32_t OpenGLFramebuffer::GetColorAttachmentRendererID(uint32_t index) const
+	{
+		if (index == 0) return m_ColorAttachment;
+		if (index == 1) return m_EntityIDAttachment;
+		return 0;
 	}
 }
