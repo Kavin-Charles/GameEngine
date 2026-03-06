@@ -1,38 +1,44 @@
 #pragma once
 
 #include "Engine/Core.h"
-#include "Camera.h"
 #include "Shader.h"
 #include "VertexArray.h"
+#include "RenderCommand.h"
+#include "Camera.h"
 
-#include <glad/gl.h>
 #include <glm/glm.hpp>
 #include <memory>
 
 namespace Engine {
 
+	class Scene;
+	struct Transform;
+
 	class ENGINE_API Renderer
 	{
 	public:
-		static void Init();
-		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
-		static void SetClearColor(const glm::vec4& color);
-		static void Clear();
+		void Init();
+		void Shutdown();
 
-		static void BeginScene(const PerspectiveCamera& camera);
-		static void BeginScene(const glm::mat4& view, const glm::mat4& projection); // new
-		static void EndScene();
+		void BeginFrame(const glm::vec4& clearColor = { 0.1f, 0.1f, 0.1f, 1.0f });
+		void EndFrame();
 
-		static void Submit(const std::shared_ptr<Shader>& shader,
+		// Render scene using the scene's primary camera
+		void RenderScene(Scene& scene, Shader& shader);
+
+		// Render scene from an explicit camera + transform (used for editor/game views)
+		void RenderSceneWithCamera(Scene& scene, Shader& shader,
+			const Camera& camera, const Transform& cameraTransform);
+
+		void Submit(Shader& shader,
 			const std::shared_ptr<VertexArray>& vertexArray,
 			const glm::mat4& transform = glm::mat4(1.0f));
 
-	private:
-		struct SceneData
-		{
-			glm::mat4 ViewProjectionMatrix;
-		};
+		void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
-		static SceneData* s_SceneData;
+		static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
+
+	private:
+		glm::mat4 m_ViewProjectionMatrix = glm::mat4(1.0f);
 	};
 }

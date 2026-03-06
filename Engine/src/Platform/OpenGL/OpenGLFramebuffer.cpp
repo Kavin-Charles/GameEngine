@@ -1,10 +1,16 @@
 #include "OpenGLFramebuffer.h"
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 namespace Engine {
 
 	static const uint32_t s_MaxFramebufferSize = 8192;
+
+	// Factory method
+	std::shared_ptr<Framebuffer> Framebuffer::Create(const FramebufferSpecification& spec)
+	{
+		return std::make_shared<OpenGLFramebuffer>(spec);
+	}
 
 	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
 		: m_Specification(spec)
@@ -42,12 +48,9 @@ namespace Engine {
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_DepthAttachment);
 		glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
 		glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height);
-		// glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height, 0, 
-		// 	GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment, 0);
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			// Log error? For now assume success or crash
 			__debugbreak();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -68,7 +71,6 @@ namespace Engine {
 	{
 		if (width == 0 || height == 0 || width > s_MaxFramebufferSize || height > s_MaxFramebufferSize)
 		{
-			// warn
 			return;
 		}
 		m_Specification.Width = width;
@@ -76,5 +78,4 @@ namespace Engine {
 		
 		Invalidate();
 	}
-
 }

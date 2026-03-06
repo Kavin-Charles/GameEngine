@@ -1,0 +1,4 @@
+[12:18:53] Engine: Engine Initialized!
+[12:18:53] Engine: Creating window Engine (1280, 720)
+[12:18:54] Engine: OpenGL Version: 4.6.0 NVIDIA 573.71
+[12:18:54] Engine: Failed to load texture file: assets/textures/checkerboard.png

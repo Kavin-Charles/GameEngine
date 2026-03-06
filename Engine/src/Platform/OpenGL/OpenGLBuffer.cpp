@@ -5,9 +5,9 @@ namespace Engine {
 
 	// --- VertexBuffer ---
 
-	VertexBuffer* VertexBuffer::Create(float* vertices, uint32_t size)
+	std::shared_ptr<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size)
 	{
-		return new OpenGLVertexBuffer(vertices, size);
+		return std::make_shared<OpenGLVertexBuffer>(vertices, size);
 	}
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size)
@@ -34,9 +34,9 @@ namespace Engine {
 
 	// --- IndexBuffer ---
 
-	IndexBuffer* IndexBuffer::Create(uint32_t* indices, uint32_t count)
+	std::shared_ptr<IndexBuffer> IndexBuffer::Create(uint32_t* indices, uint32_t count)
 	{
-		return new OpenGLIndexBuffer(indices, count);
+		return std::make_shared<OpenGLIndexBuffer>(indices, count);
 	}
 
 	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count)

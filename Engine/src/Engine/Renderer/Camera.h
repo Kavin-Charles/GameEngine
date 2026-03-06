@@ -2,34 +2,35 @@
 
 #include "Engine/Core.h"
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace Engine {
 
-	class ENGINE_API PerspectiveCamera
+	class ENGINE_API Camera
 	{
 	public:
-		PerspectiveCamera(float fov, float aspectRatio, float nearClip, float farClip);
+		Camera() { RecalculateProjection(); }
 
-		void SetPosition(const glm::vec3& position) { m_Position = position; RecalculateViewMatrix(); }
-		void SetRotation(const glm::vec3& rotation) { m_Rotation = rotation; RecalculateViewMatrix(); }
-		void SetProjection(float fov, float aspectRatio, float nearClip, float farClip);
-		void SetPositionAndTarget(const glm::vec3& position, const glm::vec3& target);
+		void SetPerspective(float fov, float aspectRatio, float nearClip, float farClip);
+		void SetViewportSize(uint32_t width, uint32_t height);
 
-		const glm::vec3& GetPosition() const { return m_Position; }
-		const glm::vec3& GetRotation() const { return m_Rotation; }
+		glm::mat4 GetViewMatrix(const struct Transform& transform) const;
+		glm::mat4 GetProjectionMatrix() const { return m_Projection; }
 
-		const glm::mat4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
-		const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
-		const glm::mat4& GetViewProjectionMatrix() const { return m_ViewProjectionMatrix; }
+		float GetFOV() const { return m_FOV; }
+		void SetFOV(float fov) { m_FOV = fov; RecalculateProjection(); }
+
+		float GetNearClip() const { return m_NearClip; }
+		float GetFarClip() const { return m_FarClip; }
 
 	private:
-		void RecalculateViewMatrix();
+		void RecalculateProjection();
 
-		glm::mat4 m_ProjectionMatrix;
-		glm::mat4 m_ViewMatrix;
-		glm::mat4 m_ViewProjectionMatrix;
+		glm::mat4 m_Projection = glm::mat4(1.0f);
 
-		glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
-		glm::vec3 m_Rotation = { 0.0f, 0.0f, 0.0f };
+		float m_FOV = 45.0f;
+		float m_AspectRatio = 16.0f / 9.0f;
+		float m_NearClip = 0.01f;
+		float m_FarClip = 1000.0f;
 	};
 }

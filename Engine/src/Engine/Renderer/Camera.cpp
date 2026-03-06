@@ -1,36 +1,45 @@
 #include "Camera.h"
+#include "Engine/Scene/Transform.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Engine {
 
-	PerspectiveCamera::PerspectiveCamera(float fov, float aspectRatio, float nearClip, float farClip)
-		: m_ProjectionMatrix(glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip)),
-		  m_ViewMatrix(1.0f)
+	void Camera::SetPerspective(float fov, float aspectRatio, float nearClip, float farClip)
 	{
-		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
+		m_FOV = fov;
+		m_AspectRatio = aspectRatio;
+		m_NearClip = nearClip;
+		m_FarClip = farClip;
+		RecalculateProjection();
 	}
 
-	void PerspectiveCamera::SetPositionAndTarget(const glm::vec3& position, const glm::vec3& target)
+	void Camera::SetViewportSize(uint32_t width, uint32_t height)
 	{
-		m_Position = position;
-		m_ViewMatrix = glm::lookAt(position, target, glm::vec3(0.0f, 1.0f, 0.0f));
-		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
+		if (height == 0) return;
+		m_AspectRatio = (float)width / (float)height;
+		RecalculateProjection();
 	}
 
-	void PerspectiveCamera::SetProjection(float fov, float aspectRatio, float nearClip, float farClip)
+	glm::mat4 Camera::GetViewMatrix(const Transform& transform) const
 	{
-		m_ProjectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip);
-		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
+		// Build front vector from rotation (Rotation.x = pitch, Rotation.y = yaw)
+		float pitch = glm::radians(transform.Rotation.x);
+		float yaw = glm::radians(transform.Rotation.y);
+
+		glm::vec3 front;
+		front.x = cos(yaw) * cos(pitch);
+		front.y = sin(pitch);
+		front.z = sin(yaw) * cos(pitch);
+		front = glm::normalize(front);
+
+		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+		return glm::lookAt(transform.Position, transform.Position + front, up);
 	}
 
-	void PerspectiveCamera::RecalculateViewMatrix()
+	void Camera::RecalculateProjection()
 	{
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_Position);
-		transform = glm::rotate(transform, glm::radians(m_Rotation.x), glm::vec3(1, 0, 0));
-		transform = glm::rotate(transform, glm::radians(m_Rotation.y), glm::vec3(0, 1, 0));
-		transform = glm::rotate(transform, glm::radians(m_Rotation.z), glm::vec3(0, 0, 1));
-
-		m_ViewMatrix = glm::inverse(transform);
-		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
+		m_Projection = glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearClip, m_FarClip);
 	}
 }

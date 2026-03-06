@@ -1,53 +1,51 @@
 #pragma once
 
+#include "Transform.h"
+#include "CameraComponent.h"
+#include "Engine/Renderer/Mesh.h"
+#include "Engine/Renderer/Material.h"
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/quaternion.hpp>
 #include <string>
 #include <memory>
 
 namespace Engine {
 
+	// --- TagComponent: name string ---
 	struct TagComponent
 	{
 		std::string Tag;
 
 		TagComponent() = default;
+		TagComponent(const std::string& tag) : Tag(tag) {}
 		TagComponent(const TagComponent&) = default;
-		TagComponent(const std::string& tag)
-			: Tag(tag) {}
 	};
 
+	// --- TransformComponent: wraps Transform struct ---
 	struct TransformComponent
 	{
-		glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
-		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
-		glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
+		Transform TransformData;
 
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
-		TransformComponent(const glm::vec3& translation)
-			: Translation(translation) {}
+		TransformComponent(const glm::vec3& position) { TransformData.Position = position; }
 
-		glm::mat4 GetTransform() const
-		{
-			glm::mat4 rotation = glm::toMat4(glm::quat(glm::radians(Rotation)));
-
-			return glm::translate(glm::mat4(1.0f), Translation)
-				* rotation
-				* glm::scale(glm::mat4(1.0f), Scale);
-		}
+		glm::mat4 GetMatrix() const { return TransformData.GetMatrix(); }
 	};
 
-	struct MeshComponent
+	// --- MeshRendererComponent: mesh + material ---
+	struct MeshRendererComponent
 	{
-		std::shared_ptr<class Mesh> Mesh;
-		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		std::shared_ptr<Mesh> MeshAsset;
+		Material MaterialData;
 
-		MeshComponent() = default;
-		MeshComponent(const MeshComponent&) = default;
-		MeshComponent(const std::shared_ptr<class Mesh>& mesh, const glm::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f })
-			: Mesh(mesh), Color(color) {}
+		MeshRendererComponent() = default;
+		MeshRendererComponent(const MeshRendererComponent&) = default;
+		MeshRendererComponent(const std::shared_ptr<Mesh>& mesh)
+			: MeshAsset(mesh) {}
+		MeshRendererComponent(const std::shared_ptr<Mesh>& mesh, const glm::vec4& color)
+			: MeshAsset(mesh) { MaterialData.Color = color; }
 	};
 
+	// CameraComponent is already defined in CameraComponent.h
+	// (Camera CameraData + bool Primary + bool IsGameCamera)
 }

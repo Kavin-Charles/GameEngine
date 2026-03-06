@@ -1,122 +1,60 @@
 #include "Scene.h"
 #include "Components.h"
-#include "Engine/Renderer/Renderer.h"
-#include "Engine/Renderer/Shader.h"
-#include "Engine/Renderer/Mesh.h"
-
-#include <algorithm>
+#include "Entity.inl"
 
 namespace Engine {
 
-	Scene::Scene()
+	Entity Scene::CreateEntity(const std::string& name)
 	{
-	}
-
-	Scene::~Scene()
-	{
-		for (auto entity : m_RootEntities)
-			delete entity;
-	}
-
-	Entity* Scene::CreateEntity(const std::string& name)
-	{
-		Entity* entity = new Entity(name);
-		m_RootEntities.push_back(entity);
+		uint32_t id = m_Registry.CreateEntity();
+		Entity entity(id, this);
+		m_Registry.AddComponent<TagComponent>(id, name);
+		m_Registry.AddComponent<TransformComponent>(id);
 		return entity;
 	}
 
-	void Scene::DestroyEntity(Entity* entity)
+	void Scene::DestroyEntity(Entity entity)
 	{
-		if (!entity)
-			return;
-
-		if (entity->GetParent())
-		{
-			entity->GetParent()->RemoveChild(entity);
-		}
-		else
-		{
-			auto it = std::find(m_RootEntities.begin(), m_RootEntities.end(), entity);
-			if (it != m_RootEntities.end())
-				m_RootEntities.erase(it);
-		}
-
-		delete entity;
+		m_Registry.DestroyEntity(entity.GetID());
 	}
 
-	void Scene::OnUpdateEditor(float ts, const std::shared_ptr<Shader>& shader, const glm::mat4& view, const glm::mat4& projection)
+	void Scene::OnUpdate(float dt)
 	{
-		// Render
-		Renderer::BeginScene(view, projection); // We need an overload for ViewProjection, or construct camera
-		
-		// Actually Renderer::BeginScene takes Camera&.
-		// We should add an overload to Renderer to take ViewProjection matrices directly for Editor camera.
-		// Or construct a temp Camera. But Camera is PerspectiveCamera.
-		// Let's check Renderer.h. It has BeginScene(PerspectiveCamera&).
-		// I'll add BeginScene(view, projection) to Renderer.
-		// For now, I'll assume it exists or I'll add it.
-		// Wait, I can't assume. I should check or add it.
-		// I'll add it to Renderer.h quickly.
-		
-		// For now let's just use the shader bind manually here? No, Renderer manages scene data (ViewProjection).
-		// So I must have Renderer::BeginScene(view, projection).
-
-		for (auto entity : m_RootEntities)
-		{
-			DrawEntity(entity, shader, view, projection, glm::mat4(1.0f));
-		}
-
-		Renderer::EndScene();
 	}
 
-	void Scene::DrawEntity(Entity* entity, const std::shared_ptr<Shader>& shader, const glm::mat4& view, const glm::mat4& projection, const glm::mat4& parentTransform)
+	void Scene::OnSceneViewResize(uint32_t width, uint32_t height)
 	{
-		auto& transform = entity->GetTransform();
-		glm::mat4 localTransform = transform.GetTransform();
-		glm::mat4 worldTransform = parentTransform * localTransform;
-
-		if (entity->GetMesh().Mesh)
-		{
-			// Bind shader and set uniforms
-			// Note: Renderer::Submit binds the shader.
-			// But we need to set color uniform.
-			shader->Bind();
-			shader->SetFloat3("u_ObjectColor", glm::vec3(entity->GetMesh().Color));
-			
-			// Submit
-			// We need to get VertexArray from Mesh.
-			// The Mesh class has GetVertexArray().
-			Renderer::Submit(shader, entity->GetMesh().Mesh->GetVertexArray(), worldTransform);
-		}
-
-		for (auto child : entity->GetChildren())
-		{
-			DrawEntity(child, shader, view, projection, worldTransform);
-		}
+		m_Registry.Each<CameraComponent>([&](uint32_t id, CameraComponent& cam) {
+			if (cam.Primary && !cam.IsGameCamera)
+				cam.CameraData.SetViewportSize(width, height);
+		});
 	}
 
-	void Scene::ReparentEntity(Entity* entity, Entity* parent)
+	void Scene::OnGameViewResize(uint32_t width, uint32_t height)
 	{
-		if (entity->GetParent())
-		{
-			entity->GetParent()->RemoveChild(entity);
-		}
-		else
-		{
-			// Was a root entity
-			auto it = std::find(m_RootEntities.begin(), m_RootEntities.end(), entity);
-			if (it != m_RootEntities.end())
-				m_RootEntities.erase(it);
-		}
-
-		if (parent)
-		{
-			parent->AddChild(entity);
-		}
-		else
-		{
-			m_RootEntities.push_back(entity);
-		}
+		m_Registry.Each<CameraComponent>([&](uint32_t id, CameraComponent& cam) {
+			if (cam.IsGameCamera)
+				cam.CameraData.SetViewportSize(width, height);
+		});
 	}
 
+	uint32_t Scene::FindGameCameraID()
+	{
+		uint32_t found = 0;
+		m_Registry.Each<CameraComponent>([&](uint32_t id, CameraComponent& cam) {
+			if (cam.IsGameCamera && found == 0)
+				found = id;
+		});
+		return found;
+	}
+
+	uint32_t Scene::FindPrimaryCameraID()
+	{
+		uint32_t found = 0;
+		m_Registry.Each<CameraComponent>([&](uint32_t id, CameraComponent& cam) {
+			if (cam.Primary && found == 0)
+				found = id;
+		});
+		return found;
+	}
 }

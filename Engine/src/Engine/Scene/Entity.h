@@ -1,45 +1,54 @@
 #pragma once
 
+#include "Registry.h"
 #include "Components.h"
-#include <vector>
+#include <cstdint>
 #include <string>
-
 #include "Engine/Core.h"
 
 namespace Engine {
 
+	class Scene;
+
 	class ENGINE_API Entity
 	{
 	public:
-		Entity(const std::string& name = "Entity");
-		~Entity();
+		Entity() = default;
+		Entity(uint32_t id, Scene* scene) : m_EntityID(id), m_Scene(scene) {}
+		Entity(const Entity& other) = default;
 
-		const std::string& GetName() const { return m_Tag.Tag; }
-		void SetName(const std::string& name) { m_Tag.Tag = name; }
+		template<typename T, typename... Args>
+		T& AddComponent(Args&&... args);
 
-		TransformComponent& GetTransform() { return m_Transform; }
-		const TransformComponent& GetTransform() const { return m_Transform; }
+		template<typename T>
+		T& GetComponent();
 
-		MeshComponent& GetMesh() { return m_Mesh; }
-		const MeshComponent& GetMesh() const { return m_Mesh; }
+		template<typename T>
+		const T& GetComponent() const;
 
-		// Hierarchy
-		Entity* GetParent() const { return m_Parent; }
-		const std::vector<Entity*>& GetChildren() const { return m_Children; }
+		template<typename T>
+		bool HasComponent() const;
 
-		void AddChild(Entity* child);
-		void RemoveChild(Entity* child); // Does not delete, just detaches
+		template<typename T>
+		void RemoveComponent();
 
-		// Components - baked in for simplicity for now
-		TagComponent m_Tag;
-		TransformComponent m_Transform;
-		MeshComponent m_Mesh;
+		uint32_t GetID() const { return m_EntityID; }
+
+		operator bool() const { return m_EntityID != 0 && m_Scene != nullptr; }
+		operator uint32_t() const { return m_EntityID; }
+
+		bool operator==(const Entity& other) const
+		{
+			return m_EntityID == other.m_EntityID && m_Scene == other.m_Scene;
+		}
+
+		bool operator!=(const Entity& other) const
+		{
+			return !(*this == other);
+		}
 
 	private:
-		Entity* m_Parent = nullptr;
-		std::vector<Entity*> m_Children;
-
-		friend class Scene;
+		uint32_t m_EntityID = 0;
+		Scene* m_Scene = nullptr;
 	};
-
 }

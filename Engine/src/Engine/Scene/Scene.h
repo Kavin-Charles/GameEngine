@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Entity.h"
+#include "Registry.h"
 #include <vector>
-#include <glm/glm.hpp>
+#include <string>
+#include <memory>
 #include "Engine/Core.h"
 
 namespace Engine {
@@ -10,28 +12,29 @@ namespace Engine {
 	class ENGINE_API Scene
 	{
 	public:
-		Scene();
-		~Scene();
+		Scene() = default;
+		~Scene() = default;
 
-		Entity* CreateEntity(const std::string& name = "Entity");
-		void DestroyEntity(Entity* entity);
-		void ReparentEntity(Entity* entity, Entity* parent);
+		// Entity management
+		Entity CreateEntity(const std::string& name = "Entity");
+		void DestroyEntity(Entity entity);
 
-#include <memory>
+		// Update
+		void OnUpdate(float dt);
 
-		// Editor camera rendering
-		void OnUpdateEditor(float ts, const std::shared_ptr<class Shader>& shader, const glm::mat4& view, const glm::mat4& projection);
+		// Viewport resize
+		void OnSceneViewResize(uint32_t width, uint32_t height);
+		void OnGameViewResize(uint32_t width, uint32_t height);
 
-		// Runtime rendering with Scene Camera (TODO)
-		void OnUpdateRuntime(float ts); 
+		// Camera queries — return entity IDs (0 = not found)
+		uint32_t FindGameCameraID();
+		uint32_t FindPrimaryCameraID();
 
-		const std::vector<Entity*>& GetRootEntities() const { return m_RootEntities; }
+		// Registry access
+		Registry& GetRegistry() { return m_Registry; }
+		const Registry& GetRegistry() const { return m_Registry; }
 
 	private:
-		std::vector<Entity*> m_RootEntities;
-
-		// Recursive helper
-		void DrawEntity(Entity* entity, const std::shared_ptr<class Shader>& shader, const glm::mat4& view, const glm::mat4& projection, const glm::mat4& parentTransform);
+		Registry m_Registry;
 	};
-
 }

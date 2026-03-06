@@ -2,6 +2,7 @@
 
 #include "Engine/Core.h"
 #include "Engine/Events/Event.h"
+#include "Engine/Timestep.h"
 #include <string>
 
 namespace Engine {
@@ -14,7 +15,8 @@ namespace Engine {
 
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnUpdate(float deltaTime) {}
+		virtual void OnUpdate(Timestep ts) {}
+		virtual void OnFixedUpdate(Timestep ts) {}
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(Event& event) {}
 
