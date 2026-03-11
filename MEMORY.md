@@ -17,7 +17,8 @@ Engine/
 │   ├── Engine.h                    # Master include header
 │   ├── Engine/
 │   │   ├── Core.h                  # DLL macros, Ref/Scope aliases, Asserts
-│   │   ├── Application.h/.cpp      # Owns Window, Renderer, InputSystem, EngineContext
+│   │   ├── Application.h/.cpp      # Owns Window, Renderer, InputSystem, EngineContext; Close()
+│   │   ├── EditorLayer.h/.cpp      # Full editor UI layer (framebuffers, panels, gizmos, picking)
 │   │   ├── EngineContext.h          # Aggregate: Renderer*, InputSystem*, Window*
 │   │   ├── EntryPoint.h            # Main() definition
 │   │   ├── Layer.h                 # Abstract Layer (OnUpdate takes Timestep)
@@ -34,7 +35,7 @@ Engine/
 │   │   ├── Renderer/
 │   │   │   ├── RendererAPI.h/.cpp  # Abstract GPU API interface
 │   │   │   ├── RenderCommand.h/.cpp# Static facade for low-level GPU commands
-│   │   │   ├── Renderer.h/.cpp     # Instance renderer: RenderScene + RenderSceneWithCamera
+│   │   │   ├── Renderer.h/.cpp     # Instance renderer + SetSelectedEntity()
 │   │   │   ├── Buffer.h            # VertexBuffer/IndexBuffer
 │   │   │   ├── VertexArray.h       # VertexArray
 │   │   │   ├── Shader.h            # Abstract shader (Create + CreateFromFile)
@@ -43,8 +44,8 @@ Engine/
 │   │   │   ├── Material.h          # PBR-ready material struct
 │   │   │   ├── Camera.h/.cpp       # Projection + FOV, view from Transform
 │   │   │   ├── CameraController.h/.cpp # WASD + right-click mouse look
-│   │   │   ├── Mesh.h/.cpp         # Mesh with sphere generation (pos+normal+uv)
-│   │   │   └── Framebuffer.h/.cpp  # Abstract framebuffer
+│   │   │   ├── Mesh.h/.cpp         # CreateSphere, CreateCube, CreatePlane (pos+normal+uv)
+│   │   │   └── Framebuffer.h/.cpp  # Abstract framebuffer + ReadPixel + ClearAttachment
 │   │   ├── Scene/
 │   │   │   ├── Transform.h         # Position/Rotation/Scale + GetMatrix()
 │   │   │   ├── Entity.h/.inl       # Lightweight ECS handle (uint32_t + Scene*)
@@ -57,14 +58,16 @@ Engine/
 │   │       └── AssetManager.h/.cpp
 │   └── Platform/
 │       ├── OpenGL/
+│       │   └── OpenGLFramebuffer    # Dual attachment: RGBA8 + R32I (entity ID)
 │       └── Windows/
+build.bat                           # One-click build: premake → MSBuild → asset copy
 Sandbox/
 ├── src/
-│   └── Sandbox.cpp               # Dual-view: Scene View + Game View
+│   └── Sandbox.cpp               # ~65 lines: scene setup + EditorLayer push
 └── assets/
     ├── shaders/
     │   ├── phong.vert             # Vertex shader (pos+normal+uv, MVP)
-    │   └── phong.frag             # Fragment shader (Phong + albedo texture)
+    │   └── phong.frag             # Fragment shader (Phong + entity ID output + highlight)
     ├── textures/
     │   └── checkerboard.png
     ├── models/                    # Future mesh files
@@ -92,9 +95,19 @@ Custom lightweight ECS implementation (no external library):
 
 ## Key Design Decisions
 
+### EditorLayer (Engine-owned)
+All editor UI lives in `Engine::EditorLayer`, NOT in Sandbox:
+- Dual framebuffers (scene + game), each with RGBA8 color + R32I entity ID attachments
+- Editor camera + CameraController (not an entity)
+- Main menu bar (File, Build)
+- Panel layout (Scene Hierarchy, Properties, Scene View, Game View)
+- Gizmo handling via ImGuizmo
+- **Mouse picking**: click in Scene View → `ReadPixel(1, x, y)` → entity ID → `SetSelectedEntity()`
+- **Selection highlighting**: Renderer sets `u_Selected=true` for selected entity → shader adds additive glow
+
 ### Dual-View Rendering
-- **Scene View** → Editor camera (NOT an Entity, owned by SandboxLayer)
-- **Game View** → Game Camera (Entity with `IsGameCamera=true`, hidden from hierarchy)
+- **Scene View** → Editor camera (owned by EditorLayer)
+- **Game View** → Game Camera (Entity with `IsGameCamera=true`)
 - Two separate framebuffers, two render passes
 - Each view resizes independently
 
@@ -102,21 +115,30 @@ Custom lightweight ECS implementation (no external library):
 - `Camera` class: projection data only, view matrix computed from Transform
 - `CameraComponent`: wraps Camera + `Primary` + `IsGameCamera` flags
 - `CameraController`: always-on WASD + mouse look, modifies Transform directly
-- Editor camera: owned by client layer, not in scene
+- Editor camera: owned by EditorLayer, not in scene
 - Game camera: Entity in scene, `IsGameCamera=true`
+
+### Entity Picking & Highlighting
+- Framebuffer has dual color attachments: `GL_COLOR_ATTACHMENT0` (RGBA8 color) + `GL_COLOR_ATTACHMENT1` (R32I entity ID)
+- Fragment shader outputs `o_EntityID = u_EntityID` to attachment 1
+- `ReadPixel(1, x, y)` reads entity ID at mouse click position
+- `ClearAttachment(1, -1)` resets ID buffer each frame
+- Selected entity gets `u_Selected=true` → additive highlight in shader
 
 ### Rendering Flow
 ```
-OnUpdate():
+EditorLayer::OnUpdate():
   1. CameraController.OnUpdate(dt, input, editorTransform)
   2. SceneFramebuffer.Bind()
-     → Renderer.RenderSceneWithCamera(scene, shader, editorCamera, editorTransform)
+     → ClearAttachment(1, -1)  // reset entity IDs
+     → SetSelectedEntity(selectedID)
+     → Renderer.RenderSceneWithCamera(...)  // sets u_EntityID + u_Selected per entity
      SceneFramebuffer.Unbind()
   3. GameFramebuffer.Bind()
-     → Renderer.RenderSceneWithCamera(scene, shader, gameCam, gameCamTransform)
+     → Renderer.RenderSceneWithCamera(...)
      GameFramebuffer.Unbind()
-OnImGuiRender():
-  Scene View panel → SceneFramebuffer texture
+EditorLayer::OnImGuiRender():
+  Scene View panel → SceneFramebuffer texture + mouse click → ReadPixel → select
   Game View panel → GameFramebuffer texture
 ```
 
@@ -127,9 +149,11 @@ OnImGuiRender():
 - `RenderCommand` stays static (low-level GPU facade)
 
 ### Build Notes
+- `build.bat` in project root: runs premake → MSBuild → asset copy (run with `.\build.bat`)
 - ImGuizmo linked with `/WHOLEARCHIVE:ImGuizmo`
 - `GLM_ENABLE_EXPERIMENTAL` for glm/gtx headers
 - OneDrive may cause sharing violations — kill Sandbox.exe before rebuilding
+- New Engine files require `premake5 vs2022` regeneration before MSBuild
 
 ## Dependencies
 | Dependency | Location | Purpose |
@@ -152,8 +176,8 @@ OnImGuiRender():
 
 ### Engine Features
 - Parent-child hierarchy for Entities
-- More mesh primitives (cube, plane, etc.)
 - Lighting system (directional, point, spot lights)
 - Shadow mapping
 - Physics system integration
 - Audio system
+- Outline-based selection highlight (replace additive glow)

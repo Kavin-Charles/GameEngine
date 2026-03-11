@@ -222,12 +222,28 @@ namespace Engine {
 					{
 						Entity e((uint32_t)pixelData, m_Scene.get());
 						m_SceneHierarchyPanel.SetSelectedEntity(e);
+						// Auto-set translate gizmo when picking an object
+						if (m_SceneHierarchyPanel.GetGizmoType() == -1)
+							m_SceneHierarchyPanel.SetGizmoType(ImGuizmo::OPERATION::TRANSLATE);
 					}
 					else
 					{
 						m_SceneHierarchyPanel.SetSelectedEntity({});
 					}
 				}
+			}
+
+			// Gizmo keyboard shortcuts: W=Translate, E=Rotate, R=Scale, Q=None
+			if (!ImGuizmo::IsUsing())
+			{
+				if (ImGui::IsKeyPressed(ImGuiKey_W))
+					m_SceneHierarchyPanel.SetGizmoType(ImGuizmo::OPERATION::TRANSLATE);
+				if (ImGui::IsKeyPressed(ImGuiKey_E))
+					m_SceneHierarchyPanel.SetGizmoType(ImGuizmo::OPERATION::ROTATE);
+				if (ImGui::IsKeyPressed(ImGuiKey_R))
+					m_SceneHierarchyPanel.SetGizmoType(ImGuizmo::OPERATION::SCALE);
+				if (ImGui::IsKeyPressed(ImGuiKey_Q))
+					m_SceneHierarchyPanel.SetGizmoType(-1);
 			}
 
 			// Gizmos in Scene View
